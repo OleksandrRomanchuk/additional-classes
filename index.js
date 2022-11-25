@@ -38,24 +38,26 @@ let books = [
     какими инструментами ему нужно пользоваться.`,
     },
 ];
+
 const rootContainer = document.querySelector('#root');
 
 const elOne = document.createElement('div');
-elOne.classList.add('root__el--left');
+elOne.classList.add('root__library');
 
 const elTwo = document.createElement('div');
-elTwo.classList.add('root__el--right');
+elTwo.classList.add('root__auxiliary');
 
 rootContainer.append(elOne, elTwo);
 
 const header = document.createElement('h1');
-header.classList.add('header-one');
+header.textContent = 'Library';
+header.classList.add('library__title');
 
 const list = document.createElement('ul');
-list.classList.add('list');
+list.classList.add('library__list');
 
 const addBtn = document.createElement('button');
-addBtn.textContent = 'Add';
+addBtn.textContent = '+';
 addBtn.classList.add('button__add');
 
 elOne.append(header, list, addBtn);
@@ -66,17 +68,28 @@ renderList(books, list);
 function renderList(data, outputEl) {
     const markup = data
         .map(
-            ({ id, title }) => `<li class="list__item" data-id="${id}">
-  <p class="list__item-hesder">${title}</p>
-  <button class="action-button" data-action="edit" type="button">Edit</button>
-  <button class="action-button" data-action="delete" type="button">Delete</button></li>
+            ({ id, title }) => `<li class="item" data-id="${id}">
+  <p class="item__header">${title}</p>
+  <div class="buttons-wrapper">
+  <button class="action-button" data-action="edit" type="button">
+  <svg class="action-button__icon" width="13" height="13">
+    <use href="./images/icons.svg#icon-pen"></use>
+</svg>
+</button>
+  <button class="action-button" data-action="delete" type="button">
+  <svg class="action-button__icon" width="13" height="13">
+    <use href="./images/icons.svg#icon-trash"></use>
+</svg>
+</button>
+  </div>
+  </li>
 `
         )
         .join('');
 
-    outputEl.insertAdjacentHTML('beforeend', markup);
+    outputEl.innerHTML = markup;
 
-    const allItemHeader = outputEl.querySelectorAll('.list__item-hesder');
+    const allItemHeader = outputEl.querySelectorAll('.item__header');
 
     allItemHeader.forEach(el => el.addEventListener('click', onTitleClick));
 
@@ -87,64 +100,73 @@ function renderList(data, outputEl) {
 
 function onTitleClick(event) {
     const book = books.find(book => book.title === event.currentTarget.textContent);
-    console.log('book: ', book);
 
-    const markup = createPreviewMarkup(book);
-
-    elTwo.innerHTML = markup;
+    elTwo.innerHTML = createPreviewMarkup(book);
 }
 
 function createPreviewMarkup(data) {
     return `<div class="book" data-id="${data.id}">
-  <h2 class="book__header">${data.title}</h2>
+  <div class="book-info__wrapper">
+  <h2 class="book__title">${data.title}</h2>
   <p class="book__author">${data.author}</p>
-  <img  class="book__prewiev" src="${data.img}" alt="">
   <p class="book__about">${data.plot}</p>
+  </div>
+  <img  class="book__preview" src="${data.img}" alt="${data.title}">
 </div>`;
 }
 
 function onDeleteBtnClick(event) {
     const itemId = event.currentTarget.closest('li').dataset.id;
-    console.log('itemId: ', itemId);
 
-    const prewievEl = elTwo.querySelector('.book');
+    const previewEl = elTwo.querySelector('.book');
 
-    if (prewievEl) {
-        if (itemId === prewievEl.dataset.id) elTwo.innerHTML = '';
+    if (previewEl) {
+        if (itemId === previewEl.dataset.id) elTwo.innerHTML = '';
     }
 
-    books = books.filter(({ id }) => id != itemId);
+    books = books.filter(({ id }) => id != event.currentTarget.closest('li').dataset.id);
 
-    list.innerHTML = '';
     renderList(books, list);
 }
 
-function onAddBtnClick(event) {
+function onAddBtnClick() {
     const newBook = { id: Date.now() };
+
     elTwo.innerHTML = creatFormMarkup();
 
+    elTwo.querySelector('input').focus();
     createDataObj(newBook);
     console.log(newBook);
 }
 
 function creatFormMarkup() {
-    return `<form>
-  <lable>Title: <input type="text" name="title" /></lable>
-  <lable>Author: <input type="text" name="author" /></lable>
-  <lable>Prewiev image: <input type="url" name="img" /></lable>
-  <lable>Plot: <input type="text" name="plot" /></lable>
-  <button type="submit">Save</button>
-</form>`;
+    return `<div class="form-wrapper">
+    <h2 class="form__title">Add a new book</h2>
+    <p class="form__description">Enter information about the new book below, then click Save-button</p>
+    <form class="form">
+    <div class="inputs-wrapper">
+    <div class="group-wrapper"><input id="title" class="form__input" type="text" name="title" /><lable for="title" class="form__label">Title</lable>
+    </div>
+<div class="group-wrapper"><input id="author" class="form__input" type="text" name="author" /><lable for="author" class="form__label">Author</lable>
+  </div>
+<div class="group-wrapper"><input id="img" class="form__input" type="url" name="img" /><lable for="img" class="form__label">Preview</lable>
+  </div>
+<div class="group-wrapper"><input id="plot" class="form__input" type="text" name="plot" /><lable for="plot" class="form__label">Plot</lable>
+  </div>
+  </div>
+  <button class="button__save" type="submit" data-action="save"><span>Save</span></button>
+</form>
+</div>`;
 }
 
 function createDataObj(book) {
     const inputEls = elTwo.querySelectorAll('input');
 
-    inputEls.forEach(el => el.addEventListener('change', changHandler));
+    inputEls.forEach(el => el.addEventListener('change', changeHandler));
 
     console.log(book);
 
-    function changHandler() {
+    function changeHandler(event) {
         book[event.currentTarget.name] = event.currentTarget.value;
 
         console.log(book);
