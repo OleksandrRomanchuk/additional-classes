@@ -43,7 +43,8 @@ body {
     padding: 10px;
 }
 
-.root__library, .root__auxiliary {
+.root__library,
+.root__auxiliary {
     min-height: 100%;
     padding: 30px 20px;
 
@@ -58,11 +59,11 @@ body {
 
 .root__library {
     position: relative;
-    
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    
+
     width: 40%;
     padding-bottom: 58px;
 
@@ -124,7 +125,7 @@ body {
 
 .buttons-wrapper {
     position: absolute;
-    bottom: 7px;  
+    bottom: 7px;
     right: 10px;
 }
 
@@ -154,7 +155,7 @@ body {
     margin-left: 2px;
 }
 
-[data-action="edit"]:hover, 
+[data-action="edit"]:hover,
 [data-action="edit"]:focus {
     background-color: rgba(255, 255, 0, 0.5);
     box-shadow: 0px 0px 7px 0px rgba(255, 255, 0, 1);
@@ -185,7 +186,8 @@ body {
     transition: background-color 300ms, opacity 300ms, box-shadow 300ms, border-color 300ms;
 }
 
-.button__add:hover, .button__add:focus {
+.button__add:hover,
+.button__add:focus {
     background-color: rgba(0, 128, 0, 0.5);
     box-shadow: 0px 0px 7px 0px green;
     border-color: transparent;
@@ -327,7 +329,8 @@ body {
     border-color: rgb(142, 190, 199);
 }
 
-.form__input:hover ~ .form__label, .form__input:focus ~ .form__label {
+.form__input:hover~.form__label,
+.form__input:focus~.form__label {
     background-color: rgba(142, 190, 199, 0.2);
     border-color: rgb(142, 190, 199);
 }
@@ -352,7 +355,8 @@ body {
     transition: background-color 300ms, border-color 300ms, box-shadow 300ms;
 }
 
-.button__save:hover, .button__save:focus {
+.button__save:hover,
+.button__save:focus {
     background-color: rgba(142, 190, 199, 0.6);
     border-color: rgb(142, 190, 199);
     box-shadow: 2px 1px 4px 1px rgba(89, 86, 89, 1);
