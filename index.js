@@ -1,4 +1,5 @@
 import { books } from './js/books.js';
+import { createListIyemMarkup, createPreviewMarkup, creatFormMarkup } from './js/templates.js';
 
 localStorage.setItem('books', JSON.stringify(books));
 
@@ -37,28 +38,7 @@ function renderList(outputEl) {
 
     if (!booksArray) return;
 
-    const markup = booksArray
-        .map(
-            ({ id, title }) => `<li class="item" data-id="${id}">
-  <p class="item__header">${title}</p>
-  <div class="buttons-wrapper">
-  <button class="action-button" data-action="edit" type="button">
-  <svg class="action-button__icon" width="13" height="13">
-    <use href="./images/icons.svg#icon-pen"></use>
-</svg>
-</button>
-  <button class="action-button" data-action="delete" type="button">
-  <svg class="action-button__icon" width="13" height="13">
-    <use href="./images/icons.svg#icon-trash"></use>
-</svg>
-</button>
-  </div>
-  </li>
-`
-        )
-        .join('');
-
-    outputEl.innerHTML = markup;
+    outputEl.innerHTML = createListIyemMarkup(booksArray);
 
     const allItemsHeader = outputEl.querySelectorAll('.item__header');
     const deleteBtns = outputEl.querySelectorAll("[data-action='delete']");
@@ -75,17 +55,6 @@ function onTitleClick(event) {
     );
 
     elTwo.innerHTML = createPreviewMarkup(book);
-}
-
-function createPreviewMarkup(data) {
-    return `<div class="book" data-id="${data.id}">
-  <div class="book-info__wrapper">
-  <h2 class="book__title">${data.title}</h2>
-  <p class="book__author">${data.author}</p>
-  <p class="book__about">${data.plot}</p>
-  </div>
-  <img  class="book__preview" src="${data.img}" alt="${data.title}">
-</div>`;
 }
 
 function onDeleteBtnClick(event) {
@@ -117,7 +86,7 @@ function onEditBtnClick(event) {
 
     elTwo.innerHTML = creatFormMarkup(bookToEdit);
 
-    setHanlerToInputs(bookToEdit);
+    setHandlerToInputs(bookToEdit);
 
     const form = elTwo.querySelector('.form');
 
@@ -130,34 +99,14 @@ function onAddBtnClick(event) {
     elTwo.innerHTML = creatFormMarkup(newBook);
 
     elTwo.querySelector('input').focus();
-    setHanlerToInputs(newBook);
+    setHandlerToInputs(newBook);
 
     const form = elTwo.querySelector('.form');
 
     form.addEventListener('submit', onFormSubmit.bind(newBook));
 }
 
-function creatFormMarkup({ title = '', author = '', img = '', plot = '' }) {
-    return `<div class="form-wrapper">
-    <h2 class="form__title">Add a new book</h2>
-    <p class="form__description">Enter information about the new book below, then click Save-button</p>
-    <form class="form">
-    <div class="inputs-wrapper">
-    <div class="group-wrapper"><input id="title" class="form__input" type="text" name="title" value="${title}"/><lable for="title" class="form__label">Title</lable>
-    </div>
-<div class="group-wrapper"><input id="author" class="form__input" type="text" name="author" value="${author}"/><lable for="author" class="form__label">Author</lable>
-  </div>
-<div class="group-wrapper"><input id="img" class="form__input" type="url" name="img" value="${img}"/><lable for="img" class="form__label">Preview</lable>
-  </div>
-<div class="group-wrapper"><input id="plot" class="form__input" type="text" name="plot" value="${plot}"/><lable for="plot" class="form__label">Plot</lable>
-  </div>
-  </div>
-  <button class="button__save" type="submit" data-action="save"><span>Save</span></button>
-</form>
-</div>`;
-}
-
-function setHanlerToInputs(book) {
+function setHandlerToInputs(book) {
     const inputEls = elTwo.querySelectorAll('input');
 
     inputEls.forEach(el => el.addEventListener('change', changeHandler.bind(book)));
@@ -179,24 +128,26 @@ function onFormSubmit(event) {
 
     elTwo.innerHTML = createPreviewMarkup(this);
 
-    const booksArray = JSON.parse(localStorage.getItem('books'));
+    const booksArr = JSON.parse(localStorage.getItem('books'));
 
-    const isInBooksArray = booksArray.some(({ id }) => id === this.id);
+    const isInBooksArray = booksArr.some(({ id }) => id === this.id);
 
     if (isInBooksArray) {
-        for (let i = 0; i < booksArray.length; i += 1) {
-            if (booksArray[i].id === this.id) booksArray[i] = this;
+        for (let i = 0; i < booksArr.length; i += 1) {
+            if (booksArr[i].id === this.id) booksArr[i] = this;
         }
 
-        localStorage.setItem('books', JSON.stringify(booksArray));
+        console.log(booksArr);
+
+        localStorage.setItem('books', JSON.stringify(booksArr));
 
         renderList(list);
         showNotification('updated');
         return;
     }
 
-    books.push(this);
-    localStorage.setItem('books', JSON.stringify(books));
+    booksArr.push(this);
+    localStorage.setItem('books', JSON.stringify(booksArr));
 
     renderList(list);
 
@@ -218,6 +169,6 @@ function showNotification(text) {
 
         setTimeout(() => {
             classToggle('remove');
-        }, 3000);
+        }, 4000);
     }, 400);
 }
