@@ -181,7 +181,7 @@ body {
     border-color: grey;
     border-radius: 50%;
 
-    opacity: 0.4;
+    opacity: 0.6;
 
     transition: background-color 300ms, opacity 300ms, box-shadow 300ms, border-color 300ms;
 }

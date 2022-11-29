@@ -1,43 +1,6 @@
-let books = [
-    {
-        id: '1',
-        title: `Apple. Эволюция компьютера`,
-        author: `Владимир Невзоров`,
-        img: `https://bukva.ua/img/products/449/449532_200.jpg`,
-        plot: `Богато иллюстрированный хронологический справочник по истории компьютеров, в котором увлекательно 
-    и в структурированном виде изложена информация о создании и развитии техники Apple на фоне истории 
-    персональных компьютеров в целом.
-    В книге даны описания десятков наиболее значимых моделей устройств как Apple, так и других производителей, 
-    сопровождающиеся большим количеством оригинальных студийных фотографий.
-    Книга предназначена для широкого круга читателей, интересующихся историей электроники. 
-    Она также может послужить источником вдохновения для дизайнеров, маркетологов и предпринимателей.`,
-    },
-    {
-        id: '2',
-        title: `Как объяснить ребенку информатику`,
-        author: `Кэрол Вордерман`,
-        img: `https://bukva.ua/img/products/480/480030_200.jpg`,
-        plot: `Иллюстрированная энциклопедия в формате инфографики о технических, социальных и культурных аспектах 
-    в информатике. Пошагово объясняет, как детям максимально эффективно использовать компьютеры и интернет-сервисы, 
-    оставаясь в безопасности. 
-    Книга рассказывает обо всем: от хранения данных до жизни в интернет-пространстве, 
-    от программирования до компьютерных атак. О том, как компьютеры функционируют, о современном программном 
-    обеспечении, устройстве Интернета и цифровом этикете. Все концепты - от хакера до биткоина - 
-    объясняются наглядно с помощью иллюстраций и схем.`,
-    },
-    {
-        id: '3',
-        title: `Путь скрам-мастера. #ScrumMasterWay`,
-        author: `Зузана Шохова`,
-        img: `https://bukva.ua/img/products/480/480090_200.jpg`,
-        plot: `Эта книга поможет вам стать выдающимся скрам-мастером и добиться отличных результатов с вашей командой. 
-    Она иллюстрированная и легкая для восприятия - вы сможете прочитать ее за выходные, а пользоваться полученными 
-    знаниями будете в течение всей карьеры.
-    Основываясь на 15-летнем опыте, Зузана Шохова рассказывает, какие роли и обязанности есть у скрам-мастера, 
-    как ему решать повседневные задачи, какие компетенции нужны, чтобы стать выдающимся скрам-мастером, 
-    какими инструментами ему нужно пользоваться.`,
-    },
-];
+import { books } from './js/books.js';
+
+localStorage.setItem('books', JSON.stringify(books));
 
 const rootContainer = document.querySelector('#root');
 
@@ -61,12 +24,17 @@ addBtn.textContent = '+';
 addBtn.classList.add('button__add');
 
 elOne.append(header, list, addBtn);
+
 addBtn.addEventListener('click', onAddBtnClick);
 
-renderList(books, list);
+renderList(list);
 
-function renderList(data, outputEl) {
-    const markup = data
+function renderList(outputEl) {
+    const booksArray = JSON.parse(localStorage.getItem('books'));
+
+    if (!booksArray) return;
+
+    const markup = booksArray
         .map(
             ({ id, title }) => `<li class="item" data-id="${id}">
   <p class="item__header">${title}</p>
@@ -89,17 +57,19 @@ function renderList(data, outputEl) {
 
     outputEl.innerHTML = markup;
 
-    const allItemHeader = outputEl.querySelectorAll('.item__header');
-
-    allItemHeader.forEach(el => el.addEventListener('click', onTitleClick));
-
+    const allItemsHeader = outputEl.querySelectorAll('.item__header');
     const deleteBtns = outputEl.querySelectorAll("[data-action='delete']");
+    const editBtns = outputEl.querySelectorAll('[data-action="edit"]');
 
+    allItemsHeader.forEach(el => el.addEventListener('click', onTitleClick));
     deleteBtns.forEach(el => el.addEventListener('click', onDeleteBtnClick));
+    editBtns.forEach(el => el.addEventListener('click', onEditBtnClick));
 }
 
 function onTitleClick(event) {
-    const book = books.find(book => book.title === event.currentTarget.textContent);
+    const book = JSON.parse(localStorage.getItem('books')).find(
+        book => book.title === event.target.textContent
+    );
 
     elTwo.innerHTML = createPreviewMarkup(book);
 }
@@ -116,7 +86,7 @@ function createPreviewMarkup(data) {
 }
 
 function onDeleteBtnClick(event) {
-    const itemId = event.currentTarget.closest('li').dataset.id;
+    const itemId = event.target.closest('li');
 
     const previewEl = elTwo.querySelector('.book');
 
@@ -124,34 +94,57 @@ function onDeleteBtnClick(event) {
         if (itemId === previewEl.dataset.id) elTwo.innerHTML = '';
     }
 
-    books = books.filter(({ id }) => id != event.currentTarget.closest('li').dataset.id);
+    const booksArray = JSON.parse(localStorage.getItem('books')).filter(
+        ({ id }) => id !== event.target.closest('li').dataset.id
+    );
 
-    renderList(books, list);
+    localStorage.setItem('books', JSON.stringify(booksArray));
+
+    renderList(list);
 }
 
-function onAddBtnClick() {
+function onEditBtnClick(event) {
+    const chosenElId = event.target.closest('li').dataset.id;
+
+    const bookToEdit = JSON.parse(localStorage.getItem('books')).find(
+        ({ id }) => id.toString() === chosenElId.toString()
+    );
+
+    elTwo.innerHTML = creatFormMarkup(bookToEdit);
+
+    setHanlerToInputs(bookToEdit);
+
+    const form = elTwo.querySelector('.form');
+
+    form.addEventListener('submit', onFormSubmit.bind(bookToEdit));
+}
+
+function onAddBtnClick(event) {
     const newBook = { id: Date.now() };
 
-    elTwo.innerHTML = creatFormMarkup();
+    elTwo.innerHTML = creatFormMarkup(newBook);
 
     elTwo.querySelector('input').focus();
-    createDataObj(newBook);
-    console.log(newBook);
+    setHanlerToInputs(newBook);
+
+    const form = elTwo.querySelector('.form');
+
+    form.addEventListener('submit', onFormSubmit.bind(newBook));
 }
 
-function creatFormMarkup() {
+function creatFormMarkup({ title = '', author = '', img = '', plot = '' }) {
     return `<div class="form-wrapper">
     <h2 class="form__title">Add a new book</h2>
     <p class="form__description">Enter information about the new book below, then click Save-button</p>
     <form class="form">
     <div class="inputs-wrapper">
-    <div class="group-wrapper"><input id="title" class="form__input" type="text" name="title" /><lable for="title" class="form__label">Title</lable>
+    <div class="group-wrapper"><input id="title" class="form__input" type="text" name="title" value="${title}"/><lable for="title" class="form__label">Title</lable>
     </div>
-<div class="group-wrapper"><input id="author" class="form__input" type="text" name="author" /><lable for="author" class="form__label">Author</lable>
+<div class="group-wrapper"><input id="author" class="form__input" type="text" name="author" value="${author}"/><lable for="author" class="form__label">Author</lable>
   </div>
-<div class="group-wrapper"><input id="img" class="form__input" type="url" name="img" /><lable for="img" class="form__label">Preview</lable>
+<div class="group-wrapper"><input id="img" class="form__input" type="url" name="img" value="${img}"/><lable for="img" class="form__label">Preview</lable>
   </div>
-<div class="group-wrapper"><input id="plot" class="form__input" type="text" name="plot" /><lable for="plot" class="form__label">Plot</lable>
+<div class="group-wrapper"><input id="plot" class="form__input" type="text" name="plot" value="${plot}"/><lable for="plot" class="form__label">Plot</lable>
   </div>
   </div>
   <button class="button__save" type="submit" data-action="save"><span>Save</span></button>
@@ -159,16 +152,45 @@ function creatFormMarkup() {
 </div>`;
 }
 
-function createDataObj(book) {
+function setHanlerToInputs(book) {
     const inputEls = elTwo.querySelectorAll('input');
 
-    inputEls.forEach(el => el.addEventListener('change', changeHandler));
+    inputEls.forEach(el => el.addEventListener('change', changeHandler.bind(book)));
+}
 
-    console.log(book);
+function changeHandler(event) {
+    this[event.target.name] = event.target.value;
+}
 
-    function changeHandler(event) {
-        book[event.currentTarget.name] = event.currentTarget.value;
+function onFormSubmit(event) {
+    event.preventDefault();
 
-        console.log(book);
+    const isFullFilled = [...event.target.querySelectorAll('.form__input')].some(el => !el.value);
+
+    if (isFullFilled) {
+        alert('A-та-та!');
+        return;
     }
+
+    elTwo.innerHTML = createPreviewMarkup(this);
+
+    const booksArray = JSON.parse(localStorage.getItem('books'));
+
+    const isInBooksArray = booksArray.some(({ id }) => id === this.id);
+
+    if (isInBooksArray) {
+        for (let i = 0; i < booksArray.length; i += 1) {
+            if (booksArray[i].id === this.id) booksArray[i] = this;
+        }
+
+        localStorage.setItem('books', JSON.stringify(booksArray));
+
+        renderList(list);
+        return;
+    }
+
+    books.push(this);
+    localStorage.setItem('books', JSON.stringify(books));
+
+    renderList(list);
 }
