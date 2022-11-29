@@ -86,7 +86,7 @@ function createPreviewMarkup(data) {
 }
 
 function onDeleteBtnClick(event) {
-    const itemId = event.target.closest('li');
+    const itemId = event.target.closest('li').dataset.id;
 
     const previewEl = elTwo.querySelector('.book');
 
@@ -95,7 +95,7 @@ function onDeleteBtnClick(event) {
     }
 
     const booksArray = JSON.parse(localStorage.getItem('books')).filter(
-        ({ id }) => id !== event.target.closest('li').dataset.id
+        ({ id }) => id.toString() !== itemId
     );
 
     localStorage.setItem('books', JSON.stringify(booksArray));
