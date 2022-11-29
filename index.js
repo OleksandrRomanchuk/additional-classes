@@ -2,7 +2,10 @@ import { books } from './js/books.js';
 
 localStorage.setItem('books', JSON.stringify(books));
 
-const rootContainer = document.querySelector('#root');
+const refs = {
+    rootContainer: document.querySelector('#root'),
+    notificationEl: document.querySelector('.notification'),
+};
 
 const elOne = document.createElement('div');
 elOne.classList.add('root__library');
@@ -10,7 +13,7 @@ elOne.classList.add('root__library');
 const elTwo = document.createElement('div');
 elTwo.classList.add('root__auxiliary');
 
-rootContainer.append(elOne, elTwo);
+refs.rootContainer.append(elOne, elTwo);
 
 const header = document.createElement('h1');
 header.textContent = 'Library';
@@ -101,6 +104,8 @@ function onDeleteBtnClick(event) {
     localStorage.setItem('books', JSON.stringify(booksArray));
 
     renderList(list);
+
+    showNotification('deleted');
 }
 
 function onEditBtnClick(event) {
@@ -186,6 +191,7 @@ function onFormSubmit(event) {
         localStorage.setItem('books', JSON.stringify(booksArray));
 
         renderList(list);
+        showNotification('updated');
         return;
     }
 
@@ -193,4 +199,25 @@ function onFormSubmit(event) {
     localStorage.setItem('books', JSON.stringify(books));
 
     renderList(list);
+
+    showNotification('added');
+}
+
+function notificationAlert(text) {
+    classToggle('add');
+    refs.notificationEl.firstElementChild.textContent = `Book was successfully ${text}!`;
+}
+
+function classToggle(action) {
+    refs.notificationEl.classList[action]('notification--show');
+}
+
+function showNotification(text) {
+    setTimeout(() => {
+        notificationAlert(text);
+
+        setTimeout(() => {
+            classToggle('remove');
+        }, 3000);
+    }, 400);
 }

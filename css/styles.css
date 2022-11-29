@@ -362,3 +362,37 @@ body {
     box-shadow: 2px 1px 4px 1px rgba(89, 86, 89, 1);
 }
 
+.notification {
+    position: absolute;
+    top: -105px;
+    right: 35px;
+
+    padding: 25px 20px;
+
+    font-size: 20px;
+
+    background-color: rgb(83, 172, 83);
+    border: 1px solid rgb(18, 69, 18);
+    border-radius: 4px;
+}
+
+.notification--show {
+    animation-name: notificationShow;
+    animation-duration: 3100ms;
+}
+
+@keyframes notificationShow {
+    0% {
+        top: -105px
+    }
+    20% {
+        top: 20px;
+    }
+    80% {
+        top: 20px;
+    }
+    100% {
+        top: -105px;
+    }
+}
+
